@@ -1,0 +1,21 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+    http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="01-cities" author="jtechlog">
+        <createTable tableName="cities">
+            <column name="id" type="int" autoIncrement="true"></column>
+            <column name="name" type="varchar2(50)"></column>
+            <column name="lat" type="double"></column>
+            <column name="lon" type="double"></column>
+        </createTable>
+        <loadData tableName="cities"
+                  file="/db/changelog/cities.csv"
+                    commentLineStartsWith="city,"/>
+    </changeSet>
+
+</databaseChangeLog>
+
