@@ -7,6 +7,8 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.context.WebApplicationContext;
 
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.equalTo;
 
 @SpringBootTest
@@ -18,16 +20,20 @@ class CitiesApplicationIT {
 
 	@Test
 	void testGetCity() {
-		given()
+		// RestAssured alapesetben float-ként olvassa be a JSON-ben lévő számot, így a CloseTo nem működik rá,
+		// ezért kell extract-ot hívni
+
+		double lat = given()
 			.webAppContextSetup(context)
 		.when()
 				// Ékezetessel nem megy
-			.get("/api/cities/Budapest")
+			.get("/api/cities/Debrecen")
 		.then()
 			.statusCode(200)
-			.body("name", equalTo("Budapest"))
-			.body("lat", equalTo(47.4825))
-			;
+			.body("name", equalTo("Debrecen"))
+		.extract().jsonPath().getDouble("lat");
+
+		assertThat(lat, closeTo(47.52883333, 0.000005));
 	}
 
 }

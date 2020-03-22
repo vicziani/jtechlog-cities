@@ -1,0 +1,10 @@
+## Get city
+
+GET http://localhost:8080/api/cities/Debrecen
+
+### Get invalid city (404)
+
+GET http://localhost:8080/api/cities/Buda
+
+###
+

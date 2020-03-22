@@ -10,8 +10,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -21,7 +20,10 @@ public class CityServiceTest {
     CityRepository cityRepository;
 
     @Mock
-    TemperatureService temperatureService;
+    TemperatureGateway temperatureGateway;
+
+    @Mock
+    HaversineCalculator haversineCalculator;
 
     @InjectMocks
     CityService cityService;
@@ -29,39 +31,41 @@ public class CityServiceTest {
     @Test
     void testGetCityDetails() {
         when(cityRepository.findByName(eq("Budapest"))).thenReturn(Optional.of(new City(1L, "Budapest", 47.4825,19.15933333)));
-        when(cityRepository.findByName(eq("Páty"))).thenReturn(Optional.of(new City(1L, "Páty", 47.5165,18.82816667)));
+        when(cityRepository.findByName(eq("Debrecen"))).thenReturn(Optional.of(new City(1L, "Debrecen",47.52883333,21.63716667)));
+        when(haversineCalculator.calculateDistance(anyDouble(), anyDouble(), anyDouble(), anyDouble())).thenReturn(10.0);
 
-        when(temperatureService.getTemperature(anyString())).thenReturn("8");
+        when(temperatureGateway.getTemperature(anyString())).thenReturn("8°C");
 
-        var cityDetails = cityService.getCityDetails("Páty").get();
+        var cityDetails = cityService.getCityDetails("Debrecen");
         assertAll(
-                () -> assertEquals("Páty", cityDetails.getName()),
-                () -> assertEquals(47.5165, cityDetails.getLat()),
-                () -> assertEquals(18.82816667, cityDetails.getLon()),
-                () -> assertTrue(cityDetails.getDistance() > 0),
-                () -> assertEquals(Optional.of("8"), cityDetails.getTemperature())
+                () -> assertEquals("Debrecen", cityDetails.getName()),
+                () -> assertEquals(47.52883333, cityDetails.getLat()),
+                () -> assertEquals(21.63716667, cityDetails.getLon()),
+                () -> assertEquals(10.0, cityDetails.getDistance()),
+                () -> assertEquals(Optional.of("8°C"), cityDetails.getTemperature())
                 );
     }
 
     @Test
     void testGetCityDetailsMissingCity() {
-        var cityDetails = cityService.getCityDetails("Páty");
-        assertTrue(cityDetails.isEmpty());
+        assertThrows(CityNotFoundException.class, () -> {
+            cityService.getCityDetails("Páty");
+        });
     }
 
     @Test
     void testGetCityDetailsMissingBase() {
-        when(cityRepository.findByName(eq("Páty"))).thenReturn(Optional.of(new City(1L, "Páty", 47.5165,18.82816667)));
-        assertThrows(IllegalStateException.class, () -> cityService.getCityDetails("Páty"));
+        when(cityRepository.findByName(eq("Debrecen"))).thenReturn(Optional.of(new City(1L, "Debrecen",47.52883333,21.63716667)));
+        assertThrows(IllegalStateException.class, () -> cityService.getCityDetails("Debrecen"));
     }
 
     @Test
     void testGetCityDetailsWhenGetTemperatureThrowsException() {
-        when(temperatureService.getTemperature(anyString())).thenThrow(new IllegalStateException());
+        when(temperatureGateway.getTemperature(anyString())).thenThrow(new IllegalStateException());
         when(cityRepository.findByName(eq("Budapest"))).thenReturn(Optional.of(new City(1L, "Budapest", 47.4825,19.15933333)));
-        when(cityRepository.findByName(eq("Páty"))).thenReturn(Optional.of(new City(1L, "Páty", 47.5165,18.82816667)));
+        when(cityRepository.findByName(eq("Debrecen"))).thenReturn(Optional.of(new City(1L, "Debrecen",47.52883333,21.63716667)));
 
-        var cityDetails = cityService.getCityDetails("Páty").get();
+        var cityDetails = cityService.getCityDetails("Debrecen");
 
         assertEquals(Optional.empty(), cityDetails.getTemperature());
     }

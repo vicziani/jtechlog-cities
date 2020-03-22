@@ -12,7 +12,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TemperatureServiceWireMockIT {
+public class TemperatureGatewayWireMockIT {
 
     static String host = "127.0.0.1";
 
@@ -44,8 +44,8 @@ public class TemperatureServiceWireMockIT {
                 .willReturn(aResponse().withBodyFile("idokep.html")));
 
         var url = String.format("http://%s:%d/", host, port);
-        TemperatureService temperatureService = new TemperatureService(url);
-        var temperature = temperatureService.getTemperature("Budapest");
+        TemperatureGateway temperatureGateway = new TemperatureGateway(url);
+        var temperature = temperatureGateway.getTemperature("Budapest");
         assertEquals("8°C", temperature);
     }
 }

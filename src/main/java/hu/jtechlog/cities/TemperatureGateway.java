@@ -4,16 +4,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 
+@Service
 @Slf4j
-public class TemperatureService {
+public class TemperatureGateway {
 
     private String url;
 
-    public TemperatureService(String url) {
+    public TemperatureGateway(@Value("${cities.idokep.url}") String url) {
         this.url = url;
     }
 
