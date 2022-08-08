@@ -33,7 +33,6 @@ class CitiesApplicationIT {
 		double lat = given()
 			.webAppContextSetup(context)
 		.when()
-				// Ékezetessel nem megy
 			.get("/api/cities/Debrecen")
 		.then()
 			.statusCode(200)
